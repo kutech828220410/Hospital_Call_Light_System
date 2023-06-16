@@ -1,0 +1,11 @@
+{
+  "DB_Basic": {
+    "DataBaseName": "",
+    "IP": "",
+    "UserName": "",
+    "Password": "",
+    "Port": 0,
+    "MySqlSslMode": 0,
+    "TableName": ""
+  }
+}
