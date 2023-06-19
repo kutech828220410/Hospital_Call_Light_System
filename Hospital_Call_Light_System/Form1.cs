@@ -25,81 +25,144 @@ namespace Hospital_Call_Light_System
         private string last_keyData = "";
         private bool 全螢幕 = false;
         MyTimer myTimer_ESC = new MyTimer();
+        MyTimer myTimer_ProcessCmdKey = new MyTimer();
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
-            if(plC_ScreenPage_Main.PageText == "設定")
+            if (plC_ScreenPage_Main.PageText == "設定")
             {
                 if (rJ_TextBox_第一台_加一號.IsFocused) rJ_TextBox_第一台_加一號.Text = keyData.ToString();
                 if (rJ_TextBox_第一台_減一號.IsFocused) rJ_TextBox_第一台_減一號.Text = keyData.ToString();
-                if (rJ_TextBox_第一台_加兩號.IsFocused) rJ_TextBox_第一台_加兩號.Text = keyData.ToString();
-                if (rJ_TextBox_第一台_減兩號.IsFocused) rJ_TextBox_第一台_減兩號.Text = keyData.ToString();
+                if (rJ_TextBox_第一台_加二號.IsFocused) rJ_TextBox_第一台_加二號.Text = keyData.ToString();
+                if (rJ_TextBox_第一台_減二號.IsFocused) rJ_TextBox_第一台_減二號.Text = keyData.ToString();
 
                 if (rJ_TextBox_第二台_加一號.IsFocused) rJ_TextBox_第二台_加一號.Text = keyData.ToString();
                 if (rJ_TextBox_第二台_減一號.IsFocused) rJ_TextBox_第二台_減一號.Text = keyData.ToString();
-                if (rJ_TextBox_第二台_加兩號.IsFocused) rJ_TextBox_第二台_加兩號.Text = keyData.ToString();
-                if (rJ_TextBox_第二台_減兩號.IsFocused) rJ_TextBox_第二台_減兩號.Text = keyData.ToString();
+                if (rJ_TextBox_第二台_加二號.IsFocused) rJ_TextBox_第二台_加二號.Text = keyData.ToString();
+                if (rJ_TextBox_第二台_減二號.IsFocused) rJ_TextBox_第二台_減二號.Text = keyData.ToString();
             }
             if (plC_ScreenPage_Main.PageText == "主畫面")
             {
-                if(keyData.ToString() == "Escape")
+                if (keyData.ToString() == "Escape")
                 {
                     myTimer_ESC.StartTickTime(1000);
-                    if(myTimer_ESC.IsTimeOut())
+                    if (myTimer_ESC.IsTimeOut())
                     {
-                        Basic.Screen.FullScreen(this.FindForm(), 0, false);
-                        panel_Main.Visible = true;
+                      
+             
                         return base.ProcessCmdKey(ref msg, keyData);
                     }
-               
+
                 }
                 else
                 {
                     myTimer_ESC.IsTimeOut();
                 }
-                if (!全螢幕) Function_號碼增減檢查(myConfigClass.機台代碼, keyData.ToString());
-
-
+ 
             }
             else
             {
             }
             last_keyData = keyData.ToString();
-            System.Threading.Thread.Sleep(200);
             return base.ProcessCmdKey(ref msg, keyData);
         }
-        private void Function_號碼增減檢查(string 機台代碼 , string keyData)
-        {
-            List<object[]> list_value = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
-            list_value = list_value.GetRows((int)enum_叫號台設定.代碼, 機台代碼);
-            if (list_value.Count == 0) return;
-            bool flag_replace = false;
-            int num = list_value[0][(int)enum_叫號台設定.叫號號碼].StringToInt32();
-            if (list_value[0][(int)enum_叫號台設定.加一號按鈕].ObjectToString() == keyData)
-            {
-                list_value[0][(int)enum_叫號台設定.叫號號碼] = (num + 1).ToString("0000");
-                flag_replace = true;
-            }
-            if (list_value[0][(int)enum_叫號台設定.減一號按鈕].ObjectToString() == keyData)
-            {
-                if ((num - 1) < 0) return;
-                list_value[0][(int)enum_叫號台設定.叫號號碼] = (num - 1).ToString("0000");
-                flag_replace = true;
-            }
-            if (list_value[0][(int)enum_叫號台設定.加二號按鈕].ObjectToString() == keyData)
-            {
-                list_value[0][(int)enum_叫號台設定.叫號號碼] = (num + 2).ToString("0000");
-                flag_replace = true;
-            }
-            if (list_value[0][(int)enum_叫號台設定.減二號按鈕].ObjectToString() == keyData)
-            {
-                if ((num - 2) < 0) return;
-                list_value[0][(int)enum_叫號台設定.叫號號碼] = (num - 2).ToString("0000");
-                flag_replace = true;
-            }
 
-            if(flag_replace)this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_value, false);
+        private void Dialog_小叫號台_FormClosingEvent()
+        {
+            Basic.Screen.FullScreen(this.FindForm(), 0, true);
+            Basic.Screen.FullScreen(this.FindForm(), 0, false);
+            panel_Main.Visible = true;
         }
 
+
+        private string keyData_buf = "";
+        private void Hook_KeyUp(int nCode, IntPtr wParam, Keys Keys)
+        {
+            if(keyData_buf != Keys.ToString())
+            {
+                keyData_buf = Keys.ToString();
+
+                if (checkBox_1號台顯示.Checked) Function_第一台_號碼增減檢查(myConfigClass.一號台名稱, Keys.ToString());
+                if (checkBox_2號台顯示.Checked) Function_第二台_號碼增減檢查(myConfigClass.二號台名稱, Keys.ToString());
+            }
+        }
+        private void Hook_KeyDown(int nCode, IntPtr wParam, Keys Keys)
+        {
+            keyData_buf = "";
+        }
+        private void Function_第一台_號碼增減檢查(string 機台名稱, string keyData)
+        {
+            List<object[]> list_樣式設定 = this.sqL_DataGridView_樣式設定.SQL_GetAllRows(false);
+            List<object[]> list_叫號台設定 = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
+            list_叫號台設定 = list_叫號台設定.GetRows((int)enum_叫號台設定.名稱, 機台名稱);
+            if (list_叫號台設定.Count == 0) return;
+            list_樣式設定 = list_樣式設定.GetRows((int)enum_樣式設定.代碼, list_叫號台設定[0][(int)enum_叫號台設定.樣式代碼].ObjectToString());
+            if (list_樣式設定.Count == 0) return;
+
+
+            bool flag_replace = false;
+            int num = list_叫號台設定[0][(int)enum_叫號台設定.號碼].StringToInt32();
+            if (myConfigClass.第一台加一號 == keyData)
+            {
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num + 1).ToString("0000");
+                flag_replace = true;
+            }
+            if (myConfigClass.第一台減一號 == keyData)
+            {
+                if ((num - 1) < 0) return;
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num - 1).ToString("0000");
+                flag_replace = true;
+            }
+            if (myConfigClass.第一台加二號 == keyData)
+            {
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num + 2).ToString("0000");
+                flag_replace = true;
+            }
+            if (myConfigClass.第一台減二號 == keyData)
+            {
+                if ((num - 2) < 0) return;
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num - 2).ToString("0000");
+                flag_replace = true;
+            }
+
+            if (flag_replace) this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_叫號台設定, false);
+        }
+        private void Function_第二台_號碼增減檢查(string 機台名稱, string keyData)
+        {
+            List<object[]> list_樣式設定 = this.sqL_DataGridView_樣式設定.SQL_GetAllRows(false);
+            List<object[]> list_叫號台設定 = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
+            list_叫號台設定 = list_叫號台設定.GetRows((int)enum_叫號台設定.名稱, 機台名稱);
+            if (list_叫號台設定.Count == 0) return;
+            list_樣式設定 = list_樣式設定.GetRows((int)enum_樣式設定.代碼, list_叫號台設定[0][(int)enum_叫號台設定.樣式代碼].ObjectToString());
+            if (list_樣式設定.Count == 0) return;
+
+
+            bool flag_replace = false;
+            int num = list_叫號台設定[0][(int)enum_叫號台設定.號碼].StringToInt32();
+            if (myConfigClass.第二台加一號 == keyData)
+            {
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num + 1).ToString("0000");
+                flag_replace = true;
+            }
+            if (myConfigClass.第二台減一號 == keyData)
+            {
+                if ((num - 1) < 0) return;
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num - 1).ToString("0000");
+                flag_replace = true;
+            }
+            if (myConfigClass.第二台加二號 == keyData)
+            {
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num + 2).ToString("0000");
+                flag_replace = true;
+            }
+            if (myConfigClass.第二台減二號 == keyData)
+            {
+                if ((num - 2) < 0) return;
+                list_叫號台設定[0][(int)enum_叫號台設定.號碼] = (num - 2).ToString("0000");
+                flag_replace = true;
+            }
+
+            if (flag_replace) this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_叫號台設定, false);
+        }
 
         #region DBConfigClass
         private const string DBConfigFileName = "DBConfig.txt";
@@ -149,9 +212,33 @@ namespace Hospital_Call_Light_System
         public class MyConfigClass
         {
 
-            private string _機台代碼 = "";
+            private string _一號台名稱 = "";
+            private string _二號台名稱 = "";
+            private bool _第一台顯示 = true;
+            private bool _第二台顯示 = true;
 
-            public string 機台代碼 { get => _機台代碼; set => _機台代碼 = value; }
+            private string _第一台加一號 = "";
+            private string _第一台減一號 = "";
+            private string _第一台加二號 = "";
+            private string _第一台減二號 = "";
+            private string _第二台加一號 = "";
+            private string _第二台減一號 = "";
+            private string _第二台加二號 = "";
+            private string _第二台減二號 = "";
+
+
+            public bool 第二台顯示 { get => _第二台顯示; set => _第二台顯示 = value; }
+            public string 一號台名稱 { get => _一號台名稱; set => _一號台名稱 = value; }
+            public string 二號台名稱 { get => _二號台名稱; set => _二號台名稱 = value; }
+            public bool 第一台顯示 { get => _第一台顯示; set => _第一台顯示 = value; }
+            public string 第一台加一號 { get => _第一台加一號; set => _第一台加一號 = value; }
+            public string 第一台減一號 { get => _第一台減一號; set => _第一台減一號 = value; }
+            public string 第一台加二號 { get => _第一台加二號; set => _第一台加二號 = value; }
+            public string 第一台減二號 { get => _第一台減二號; set => _第一台減二號 = value; }
+            public string 第二台加一號 { get => _第二台加一號; set => _第二台加一號 = value; }
+            public string 第二台減一號 { get => _第二台減一號; set => _第二台減一號 = value; }
+            public string 第二台加二號 { get => _第二台加二號; set => _第二台加二號 = value; }
+            public string 第二台減二號 { get => _第二台減二號; set => _第二台減二號 = value; }
         }
         private void LoadMyConfig()
         {
@@ -197,37 +284,27 @@ namespace Hospital_Call_Light_System
             Dialog_NumPannel.form = this.FindForm();
             this.LoadDBConfig();
             this.LoadMyConfig();
-            textBox_機台代碼.Text = myConfigClass.機台代碼;
 
             this.plC_RJ_Button_全螢幕顯示.MouseDownEvent += PlC_RJ_Button_全螢幕顯示_MouseDownEvent;
             this.plC_UI_Init.Run(this.FindForm(), this.lowerMachine_Panel);
             this.plC_UI_Init.UI_Finished_Event += PlC_UI_Init_UI_Finished_Event;
+            myTimer_ProcessCmdKey.StartTickTime(200);
 
+            Dialog_小叫號台.FormClosingEvent += Dialog_小叫號台_FormClosingEvent;
+            Basic.Keyboard.Hook.KeyDown += Hook_KeyDown;
+            Basic.Keyboard.Hook.KeyUp += Hook_KeyUp;
+            this.rJ_TextBox_第一台_加一號.Text = myConfigClass.第一台加一號;
+            this.rJ_TextBox_第一台_減一號.Text = myConfigClass.第一台減一號;
+            this.rJ_TextBox_第一台_加二號.Text = myConfigClass.第一台加二號;
+            this.rJ_TextBox_第一台_減二號.Text = myConfigClass.第一台減二號;
+
+            this.rJ_TextBox_第二台_加一號.Text = myConfigClass.第二台加一號;
+            this.rJ_TextBox_第二台_減一號.Text = myConfigClass.第二台減一號;
+            this.rJ_TextBox_第二台_加二號.Text = myConfigClass.第二台加二號;
+            this.rJ_TextBox_第二台_減二號.Text = myConfigClass.第二台減二號;
         }
-        private void PlC_RJ_Button_全螢幕顯示_MouseDownEvent(MouseEventArgs mevent)
-        {
-            Dialog_螢幕選擇 dialog_螢幕選擇 = new Dialog_螢幕選擇();
-      
-            this.Invoke(new Action(delegate
-            {
-                if (dialog_螢幕選擇.ShowDialog() == DialogResult.Yes)
-                {
-                    try
-                    {
-                        Basic.Screen.FullScreen(this.FindForm(), dialog_螢幕選擇.Value, true);
-                        panel_Main.Visible = false;
-                        this.全螢幕 = true;
-                    }
-                    catch
-                    {
-                        Basic.Screen.FullScreen(this.FindForm(), 0, false);
-                        MyMessageBox.ShowDialog("找無此螢幕!");
-                    }
-                }
-            }));
-            
-         
-        }
+
+
         private void PlC_UI_Init_UI_Finished_Event()
         {
             PLC_UI_Init.Set_PLC_ScreenPage(this.panel_Main, this.plC_ScreenPage_Main);
@@ -236,35 +313,18 @@ namespace Hospital_Call_Light_System
             this.Program_設定();
             this.Program_主畫面();
 
-            this.Function_設定讀取(myConfigClass.機台代碼);
+            this.WindowState = FormWindowState.Maximized;
+
         }
         private void PlC_ScreenPage_Main_TabChangeEvent(string PageText)
         {
-            if(PageText == "設定")
+            if (PageText == "設定")
             {
-                List<object[]> list_value = sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
-                List<string> list_代碼 = new List<string>();
-                for (int i = 0; i < list_value.Count; i++)
-                {
-                    bool flag_add = true;
-                    string 代碼 = list_value[i][(int)enum_叫號台設定.代碼].ObjectToString();
-                    for (int k = 0; k < list_代碼.Count; k++)
-                    {
-                        if (list_代碼[k] == 代碼)
-                        {
-                            flag_add = false;
-                        }
-                    }
-                    if (flag_add) list_代碼.Add(代碼);
-                }
+                comboBox_代碼.SelectedIndex = 0;
+                Function_設定讀取(comboBox_代碼.Text);
 
-
-                this.Invoke(new Action(delegate
-                {
-                    comboBox_代碼.Items.Clear();
-                    for (int k = 0; k < list_代碼.Count; k++) comboBox_代碼.Items.Add(list_代碼[k]);
-                    if (comboBox_代碼.Items.Count > 0) comboBox_代碼.SelectedIndex = 0;
-                }));
+                this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(true);
+                comboBox_叫號台設定_代碼.SelectedIndex = 0;
             }
         }
 

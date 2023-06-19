@@ -22,17 +22,35 @@ namespace Hospital_Call_Light_System
 {
     public partial class Form1 : System.Windows.Forms.Form
     {
-        int 叫號台01_號碼 = -1;
-        int 叫號台02_號碼 = -1;
+        int 叫號台01_號碼 = 0;
+        int 叫號台02_號碼 = 0;
 
         private void Program_主畫面()
         {
             this.button_第一台號碼輸入.Click += Button_第一台號碼輸入_Click;
             this.button_第二台號碼輸入.Click += Button_第二台號碼輸入_Click;
             this.plC_RJ_Button_刷新螢幕.MouseDownEvent += PlC_RJ_Button_刷新螢幕_MouseDownEvent;
+            this.plC_RJ_Button_檢查按鈕.MouseDownEvent += PlC_RJ_Button_檢查按鈕_MouseDownEvent;
+
             this.button_主畫面_存檔.Click += Button_主畫面_存檔_Click;
+            comboBox_一號台名稱.Click += ComboBox_一號台名稱_Click; ;
+            comboBox_二號台名稱.Click += ComboBox_二號台名稱_Click;
+
+
+
+            ComboBox_一號台名稱_Click(null, null);
+            ComboBox_二號台名稱_Click(null, null);
+            this.comboBox_一號台名稱.Text = myConfigClass.一號台名稱;
+            this.comboBox_二號台名稱.Text = myConfigClass.二號台名稱;
+            checkBox_1號台顯示.Checked = myConfigClass.第一台顯示;
+            checkBox_2號台顯示.Checked = myConfigClass.第二台顯示;
+
+            Dialog_小叫號台.EnrterNum01Event += Dialog_小叫號台_EnrterNum01Event;
+            Dialog_小叫號台.EnrterNum02Event += Dialog_小叫號台_EnrterNum02Event;
             this.plC_UI_Init.Add_Method(sub_Program_主畫面);
         }
+
+
 
         private void sub_Program_主畫面()
         {
@@ -46,7 +64,8 @@ namespace Hospital_Call_Light_System
                 Bitmap bitmap = new Bitmap(標題大小.Width, 標題大小.Height);
                 using (Graphics g_bmp = Graphics.FromImage(bitmap))
                 {
-                    DrawingClass.Draw.方框繪製(new PointF(0, 0), bitmap.Size, 標題背景顏色, 1, true, g_bmp, 1, 1);
+                    DrawingClass.Draw.方框繪製(new PointF(0, 0), bitmap.Size, Color.Transparent, 2, true, g_bmp, 1, 1);
+                    DrawingClass.Draw.方框繪製(new PointF(0, 0), new Size(bitmap.Width - 2, bitmap.Height), 標題背景顏色, 1, true, g_bmp, 1, 1);
                     Size size_font = TextRenderer.MeasureText(標題名稱, 標題字體);
                     int x = (標題大小.Width - 標題文字寬度) / 2;
                     int y = (bitmap.Height - size_font.Height) / 2;
@@ -63,10 +82,32 @@ namespace Hospital_Call_Light_System
         }
 
         #region Event
+        private void ComboBox_二號台名稱_Click(object sender, EventArgs e)
+        {
+            comboBox_二號台名稱.Items.Clear();
+            List<string> list_str = Function_取得叫號名稱();
+            for (int i = 0; i < list_str.Count; i++)
+            {
+                comboBox_二號台名稱.Items.Add(list_str[i]);
+            }
+        }
+        private void ComboBox_一號台名稱_Click(object sender, EventArgs e)
+        {
+            comboBox_一號台名稱.Items.Clear();
+            List<string> list_str = Function_取得叫號名稱();
+            for(int i = 0; i < list_str.Count; i++)
+            {
+                comboBox_一號台名稱.Items.Add(list_str[i]);
+            }
+           
+        }
+
         private void Button_主畫面_存檔_Click(object sender, EventArgs e)
         {
-            myConfigClass.機台代碼 = this.textBox_機台代碼.Text;
-
+            myConfigClass.一號台名稱 = this.comboBox_一號台名稱.Text;
+            myConfigClass.二號台名稱 = this.comboBox_二號台名稱.Text;
+            myConfigClass.第一台顯示 = checkBox_1號台顯示.Checked;
+            myConfigClass.第二台顯示 = checkBox_2號台顯示.Checked;
             string jsonstr = Basic.Net.JsonSerializationt<MyConfigClass>(myConfigClass, true);
             List<string> list_jsonstring = new List<string>();
             list_jsonstring.Add(jsonstr);
@@ -82,59 +123,87 @@ namespace Hospital_Call_Light_System
         {
             try
             {
-                string 機台代碼 = this.textBox_機台代碼.Text;
                 using (Graphics g = this.panel_叫號.CreateGraphics())
                 {
                     g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    string 一號台名稱 = "";
+                    string 二號台名稱 = "";
 
+                    this.Invoke(new Action(delegate 
+                    {
+                        一號台名稱 = comboBox_一號台名稱.Text;
+                        二號台名稱 = comboBox_二號台名稱.Text;
+                    }));
                     int width = this.panel_叫號.Width;
                     int height = this.panel_叫號.Height;
                     Bitmap bitmap_標題_0 = null;
                     Bitmap bitmap_叫號_0 = null;
                     Bitmap bitmap_標題_1 = null;
                     Bitmap bitmap_叫號_1 = null;
-                    List<object[]> list_value = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
-                    list_value = list_value.GetRows((int)enum_叫號台設定.代碼, 機台代碼);
-                    list_value.Sort(new Icp_叫號台設定());
-                    bool flag_RING = false;
-                    for (int i = 0; i < list_value.Count; i++)
-                    {
-                        int 寬度 = (width - 0) / 2;
-                        string 標題名稱 = list_value[i][(int)enum_叫號台設定.標題名稱].ObjectToString();
-                        Font 標題字體 = list_value[i][(int)enum_叫號台設定.標題字體].ObjectToString().ToFont();
-                        int 標題文字寬度 = list_value[i][(int)enum_叫號台設定.標題文字寬度].StringToInt32();
-                        Color 標題字體顏色 = list_value[i][(int)enum_叫號台設定.標題字體顏色].ObjectToString().ToColor();
-                        Color 標題背景顏色 = list_value[i][(int)enum_叫號台設定.標題背景顏色].ObjectToString().ToColor();
-                        int 標題高度 = list_value[i][(int)enum_叫號台設定.標題高度].StringToInt32();
+                    List<object[]> list_叫號台設定 = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
+                    List<object[]> list_叫號台設定_buf = new List<object[]>();
+                    List<object[]> list_樣式設定 = this.sqL_DataGridView_樣式設定.SQL_GetAllRows(false);
+                    List<object[]> list_樣式設定_buf = new List<object[]>();
 
-                        string 叫號名稱 = list_value[i][(int)enum_叫號台設定.叫號號碼].ObjectToString();
-                        Font 叫號字體 = list_value[i][(int)enum_叫號台設定.叫號字體].ObjectToString().ToFont();
-                        int 叫號文字寬度 = list_value[i][(int)enum_叫號台設定.叫號文字寬度].StringToInt32();
-                        Color 叫號字體顏色 = list_value[i][(int)enum_叫號台設定.叫號字體顏色].ObjectToString().ToColor();
-                        Color 叫號背景顏色 = list_value[i][(int)enum_叫號台設定.叫號背景顏色].ObjectToString().ToColor();
-                        int 叫號高度 = height - 標題高度;
+                    bool flag_RING = false;
+                    for (int i = 0; i < list_樣式設定.Count; i++)
+                    {
                         if (i == 0)
                         {
-                            if (叫號台01_號碼 != list_value[i][(int)enum_叫號台設定.叫號號碼].StringToInt32())
-                            {
-                                flag_RING = true;
-                            }
-                            叫號台01_號碼 = list_value[i][(int)enum_叫號台設定.叫號號碼].StringToInt32();
-                            bitmap_標題_0 = Function_主畫面_取得文字Bitmap(標題名稱, 標題字體, new Size(寬度, 標題高度), 標題文字寬度, 標題字體顏色, 標題背景顏色);
-                            bitmap_叫號_0 = Function_主畫面_取得文字Bitmap(叫號名稱, 叫號字體, new Size(寬度, 叫號高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
+                            list_叫號台設定_buf = list_叫號台設定.GetRows((int)enum_叫號台設定.名稱, 一號台名稱);
+                            if (list_叫號台設定_buf.Count == 0) continue;
+                            list_樣式設定_buf = list_樣式設定.GetRows((int)enum_樣式設定.代碼, list_叫號台設定_buf[0][(int)enum_叫號台設定.樣式代碼].ObjectToString());
+                            if (list_樣式設定_buf.Count == 0) continue;
                         }
                         if (i == 1)
                         {
-                            if (叫號台02_號碼 != list_value[i][(int)enum_叫號台設定.叫號號碼].StringToInt32())
+                            list_叫號台設定_buf = list_叫號台設定.GetRows((int)enum_叫號台設定.名稱, 二號台名稱);
+                            if (list_叫號台設定_buf.Count == 0) continue;
+                            list_樣式設定_buf = list_樣式設定.GetRows((int)enum_樣式設定.代碼, list_叫號台設定_buf[0][(int)enum_叫號台設定.樣式代碼].ObjectToString());
+                            if (list_樣式設定_buf.Count == 0) continue;
+                        }
+                        int 寬度 = (width - 0) / 2;
+                        int temp = 0;
+                        if (checkBox_1號台顯示.Checked) temp++;
+                        if (checkBox_2號台顯示.Checked) temp++;
+
+                        if (temp == 1) 寬度 = (width - 0) / 1;
+
+                        string 標題名稱 = list_叫號台設定_buf[0][(int)enum_叫號台設定.名稱].ObjectToString();
+                        Font 標題字體 = list_樣式設定_buf[0][(int)enum_樣式設定.標題字體].ObjectToString().ToFont();
+                        int 標題文字寬度 = list_樣式設定_buf[0][(int)enum_樣式設定.標題文字寬度].StringToInt32();
+                        Color 標題字體顏色 = list_樣式設定_buf[0][(int)enum_樣式設定.標題字體顏色].ObjectToString().ToColor();
+                        Color 標題背景顏色 = list_樣式設定_buf[0][(int)enum_樣式設定.標題背景顏色].ObjectToString().ToColor();
+                        int 標題高度 = list_樣式設定_buf[0][(int)enum_樣式設定.標題高度].StringToInt32();
+
+                        string 叫號名稱 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號號碼].ObjectToString();
+                        Font 叫號字體 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號字體].ObjectToString().ToFont();
+                        int 叫號文字寬度 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號文字寬度].StringToInt32();
+                        Color 叫號字體顏色 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號字體顏色].ObjectToString().ToColor();
+                        Color 叫號背景顏色 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號背景顏色].ObjectToString().ToColor();
+                        int 叫號高度 = height - 標題高度;
+                        if (i == 0 && checkBox_1號台顯示.Checked)
+                        {
+                            if (叫號台01_號碼 != list_叫號台設定_buf[0][(int)enum_叫號台設定.號碼].StringToInt32())
+                            {
+                                flag_RING = true;
+                            }
+                            叫號台01_號碼 = list_叫號台設定_buf[0][(int)enum_叫號台設定.號碼].StringToInt32();
+                            bitmap_標題_0 = Function_主畫面_取得文字Bitmap(標題名稱, 標題字體, new Size(寬度, 標題高度), 標題文字寬度, 標題字體顏色, 標題背景顏色);
+                            bitmap_叫號_0 = Function_主畫面_取得文字Bitmap(叫號台01_號碼.ToString("0000"), 叫號字體, new Size(寬度, 叫號高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
+                        }
+                        if (i == 1 && checkBox_2號台顯示.Checked)
+                        {
+                            if (叫號台02_號碼 != list_叫號台設定_buf[0][(int)enum_叫號台設定.號碼].StringToInt32())
                             {
                                 flag_RING = true;
                             }
 
-                            叫號台02_號碼 = list_value[i][(int)enum_叫號台設定.叫號號碼].StringToInt32();
+                            叫號台02_號碼 = list_叫號台設定_buf[0][(int)enum_叫號台設定.號碼].StringToInt32();
                             bitmap_標題_1 = Function_主畫面_取得文字Bitmap(標題名稱, 標題字體, new Size(寬度, 標題高度), 標題文字寬度, 標題字體顏色, 標題背景顏色);
-                            bitmap_叫號_1 = Function_主畫面_取得文字Bitmap(叫號名稱, 叫號字體, new Size(寬度, 叫號高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
+                            bitmap_叫號_1 = Function_主畫面_取得文字Bitmap(叫號台02_號碼.ToString("0000"), 叫號字體, new Size(寬度, 叫號高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
                         }
 
 
@@ -156,13 +225,17 @@ namespace Hospital_Call_Light_System
                     }
                     if(flag_RING)
                     {
+                       
                         System.Media.SoundPlayer sp = null;
+                        Dialog_小叫號台.Refresh(叫號台01_號碼, 叫號台02_號碼);
                         try
                         {
+                     
                             sp = new System.Media.SoundPlayer(".//RING.wav");
                             sp.Stop();
 
                             sp.Play();
+          
                         }
                         finally
                         {
@@ -179,12 +252,15 @@ namespace Hospital_Call_Light_System
             }
           
         }
+        private void PlC_RJ_Button_檢查按鈕_MouseDownEvent(MouseEventArgs mevent)
+        {
+
+        }
         private void Button_第一台號碼輸入_Click(object sender, EventArgs e)
         {
-            string 機台代碼 = this.textBox_機台代碼.Text;
+            string 機台名稱 = this.comboBox_一號台名稱.Text;
             List<object[]> list_value = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
-            list_value = list_value.GetRows((int)enum_叫號台設定.代碼, 機台代碼);
-            list_value = list_value.GetRows((int)enum_叫號台設定.台號, "1");
+            list_value = list_value.GetRows((int)enum_叫號台設定.名稱, 機台名稱);
             if(list_value.Count == 0)
             {
                 MyMessageBox.ShowDialog("找無資料!");
@@ -192,15 +268,14 @@ namespace Hospital_Call_Light_System
             }
             Dialog_NumPannel dialog_NumPannel = new Dialog_NumPannel();
             if (dialog_NumPannel.ShowDialog() != DialogResult.Yes) return;
-            list_value[0][(int)enum_叫號台設定.叫號號碼] = dialog_NumPannel.Value.ToString("0000");
+            list_value[0][(int)enum_叫號台設定.號碼] = dialog_NumPannel.Value.ToString("0000");
             this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_value, false);
         }
         private void Button_第二台號碼輸入_Click(object sender, EventArgs e)
         {
-            string 機台代碼 = this.textBox_機台代碼.Text;
+            string 機台名稱 = this.comboBox_二號台名稱.Text;
             List<object[]> list_value = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
-            list_value = list_value.GetRows((int)enum_叫號台設定.代碼, 機台代碼);
-            list_value = list_value.GetRows((int)enum_叫號台設定.台號, "2");
+            list_value = list_value.GetRows((int)enum_叫號台設定.名稱, 機台名稱);
             if (list_value.Count == 0)
             {
                 MyMessageBox.ShowDialog("找無資料!");
@@ -208,7 +283,82 @@ namespace Hospital_Call_Light_System
             }
             Dialog_NumPannel dialog_NumPannel = new Dialog_NumPannel();
             if (dialog_NumPannel.ShowDialog() != DialogResult.Yes) return;
-            list_value[0][(int)enum_叫號台設定.叫號號碼] = dialog_NumPannel.Value.ToString("0000");
+            list_value[0][(int)enum_叫號台設定.號碼] = dialog_NumPannel.Value.ToString("0000");
+            this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_value, false);
+        }
+        private void PlC_RJ_Button_全螢幕顯示_MouseDownEvent(MouseEventArgs mevent)
+        {
+            Dialog_螢幕選擇 dialog_螢幕選擇 = new Dialog_螢幕選擇();
+
+            this.Invoke(new Action(delegate
+            {
+                if (dialog_螢幕選擇.ShowDialog() == DialogResult.Yes)
+                {
+
+                    try
+                    {
+                        Dialog_小叫號台.ShowForm();
+                        Dialog_小叫號台.Refresh(叫號台01_號碼, 叫號台02_號碼);
+
+
+                        Basic.Screen.FullScreen(this.FindForm(), dialog_螢幕選擇.Value, true);
+                        Basic.Screen.FullScreen(this.FindForm(), dialog_螢幕選擇.Value, false);
+                        List<Task> taskList = new List<Task>();
+                        taskList.Add(Task.Run(() =>
+                        {
+
+                            System.Threading.Thread.Sleep(500);
+                            this.Invoke(new Action(delegate
+                            {
+                                Basic.Screen.FullScreen(this.FindForm(), dialog_螢幕選擇.Value, true);
+                            }));
+                        }));
+
+
+                        panel_Main.Visible = false;
+                        Application.DoEvents();
+
+                        this.全螢幕 = true;
+                    }
+                    catch
+                    {
+                        Basic.Screen.FullScreen(this.FindForm(), 0, false);
+                        MyMessageBox.ShowDialog("找無此螢幕!");
+                    }
+                }
+            }));
+
+
+        }
+        private void Dialog_小叫號台_EnrterNum02Event()
+        {
+            string 機台名稱 = this.comboBox_二號台名稱.Text;
+            List<object[]> list_value = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
+            list_value = list_value.GetRows((int)enum_叫號台設定.名稱, 機台名稱);
+            if (list_value.Count == 0)
+            {
+                MyMessageBox.ShowDialog("找無資料!");
+                return;
+            }
+            Dialog_NumPannel dialog_NumPannel = new Dialog_NumPannel();
+            if (dialog_NumPannel.ShowDialog() != DialogResult.Yes) return;
+            list_value[0][(int)enum_叫號台設定.號碼] = dialog_NumPannel.Value.ToString("0000");
+            this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_value, false);
+        }
+
+        private void Dialog_小叫號台_EnrterNum01Event()
+        {
+            string 機台名稱 = this.comboBox_一號台名稱.Text;
+            List<object[]> list_value = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
+            list_value = list_value.GetRows((int)enum_叫號台設定.名稱, 機台名稱);
+            if (list_value.Count == 0)
+            {
+                MyMessageBox.ShowDialog("找無資料!");
+                return;
+            }
+            Dialog_NumPannel dialog_NumPannel = new Dialog_NumPannel();
+            if (dialog_NumPannel.ShowDialog() != DialogResult.Yes) return;
+            list_value[0][(int)enum_叫號台設定.號碼] = dialog_NumPannel.Value.ToString("0000");
             this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_value, false);
         }
         #endregion
@@ -224,7 +374,7 @@ namespace Hospital_Call_Light_System
             if (plC_ScreenPage_Main.PageText == "主畫面") PLC_Device_刷新螢幕.Bool = true;
             if (cnt_Program_刷新螢幕 == 65534)
             {
-                this.MyTimer_刷新螢幕_結束延遲.StartTickTime(200);
+                this.MyTimer_刷新螢幕_結束延遲.StartTickTime(500);
                 PLC_Device_刷新螢幕.SetComment("PLC_刷新螢幕");
                 PLC_Device_刷新螢幕_OK.SetComment("PLC_刷新螢幕_OK");
                 PLC_Device_刷新螢幕.Bool = false;
@@ -239,7 +389,7 @@ namespace Hospital_Call_Light_System
             if (cnt_Program_刷新螢幕 == 65500)
             {
                 this.MyTimer_刷新螢幕_結束延遲.TickStop();
-                this.MyTimer_刷新螢幕_結束延遲.StartTickTime(200);
+                this.MyTimer_刷新螢幕_結束延遲.StartTickTime(500);
                 PLC_Device_刷新螢幕.Bool = false;
                 PLC_Device_刷新螢幕_OK.Bool = false;
                 cnt_Program_刷新螢幕 = 65535;

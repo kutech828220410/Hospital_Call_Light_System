@@ -22,7 +22,7 @@ namespace Hospital_Call_Light_System
 {
     public partial class Form1 : System.Windows.Forms.Form
     {
-        public enum enum_叫號台設定
+        public enum enum_樣式設定
         {
             GUID,
             代碼,
@@ -48,18 +48,18 @@ namespace Hospital_Call_Light_System
         }
         private void Program_系統()
         {
-            SQL_DataGridView.SQL_Set_Properties(sqL_DataGridView_叫號台設定, dBConfigClass.DB_Basic);
-            this.sqL_DataGridView_叫號台設定.Init();
-            if (this.sqL_DataGridView_叫號台設定.SQL_IsTableCreat() == false) sqL_DataGridView_叫號台設定.SQL_CreateTable();
-            else sqL_DataGridView_叫號台設定.SQL_CheckAllColumnName(true);
+            SQL_DataGridView.SQL_Set_Properties(sqL_DataGridView_樣式設定, dBConfigClass.DB_Basic);
+            this.sqL_DataGridView_樣式設定.Init();
+            if (this.sqL_DataGridView_樣式設定.SQL_IsTableCreat() == false) sqL_DataGridView_樣式設定.SQL_CreateTable();
+            else sqL_DataGridView_樣式設定.SQL_CheckAllColumnName(true);
         }
 
         public class Icp_叫號台設定 : IComparer<object[]>
         {
             public int Compare(object[] x, object[] y)
             {
-                string 台號_0 = x[(int)enum_叫號台設定.台號].ObjectToString();
-                string 台號_1 = y[(int)enum_叫號台設定.台號].ObjectToString();
+                string 台號_0 = x[(int)enum_樣式設定.台號].ObjectToString();
+                string 台號_1 = y[(int)enum_樣式設定.台號].ObjectToString();
                 return 台號_0.CompareTo(台號_1);
             }
         }
