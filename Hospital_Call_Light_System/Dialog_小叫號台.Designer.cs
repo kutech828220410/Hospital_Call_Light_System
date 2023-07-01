@@ -33,6 +33,7 @@ namespace Hospital_Call_Light_System
             this.button_第二台號碼輸入 = new System.Windows.Forms.Button();
             this.label_第一台號碼 = new System.Windows.Forms.Label();
             this.label_第二台號碼 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // button_第一台號碼輸入
@@ -79,17 +80,32 @@ namespace Hospital_Call_Light_System
             this.label_第二台號碼.TabIndex = 21;
             this.label_第二台號碼.Text = "0000";
             // 
+            // label1
+            // 
+            this.label1.BackColor = System.Drawing.Color.Gainsboro;
+            this.label1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.label1.Font = new System.Drawing.Font("微軟正黑體", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(136)));
+            this.label1.Location = new System.Drawing.Point(0, 188);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(492, 36);
+            this.label1.TabIndex = 22;
+            this.label1.Text = "Copyright ©2023 鴻森整合機電有限公司";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // Dialog_小叫號台
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(492, 188);
+            this.ClientSize = new System.Drawing.Size(492, 224);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.label_第二台號碼);
             this.Controls.Add(this.label_第一台號碼);
             this.Controls.Add(this.button_第二台號碼輸入);
             this.Controls.Add(this.button_第一台號碼輸入);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Dialog_小叫號台";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.TopMost = true;
@@ -105,5 +121,6 @@ namespace Hospital_Call_Light_System
         private System.Windows.Forms.Button button_第二台號碼輸入;
         private System.Windows.Forms.Label label_第一台號碼;
         private System.Windows.Forms.Label label_第二台號碼;
+        private System.Windows.Forms.Label label1;
     }
 }

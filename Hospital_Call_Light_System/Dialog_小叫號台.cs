@@ -53,8 +53,6 @@ namespace Hospital_Call_Light_System
             this.button_第二台號碼輸入.Click += Button_第二台號碼輸入_Click;
         }
 
-
-
         private void Dialog_小叫號台_Shown(object sender, EventArgs e)
         {
     

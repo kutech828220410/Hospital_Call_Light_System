@@ -27,6 +27,8 @@ namespace Hospital_Call_Light_System
         {
             GUID,
             名稱,
+            英文名,
+            叫號備註,
             樣式代碼,
             號碼
         }
@@ -52,15 +54,22 @@ namespace Hospital_Call_Light_System
             this.button_第一台_叫號_字體顏色.Click += Button_第一台_叫號_字體顏色_Click;
             this.button_第一台_叫號_背景顏色.Click += Button_第一台_叫號_背景顏色_Click;
 
-            this.rJ_TextBox_第一台_加一號.KeyPress += RJ_TextBox_第一台_加一號按鈕_KeyPress;
-            this.rJ_TextBox_第一台_減一號.KeyPress += RJ_TextBox_第一台_減一號_KeyPress;
-            this.rJ_TextBox_第一台_加二號.KeyPress += RJ_TextBox_第一台_加兩號_KeyPress;
-            this.rJ_TextBox_第一台_減二號.KeyPress += RJ_TextBox_第一台_減兩號_KeyPress;
+            this.button_第一台_標題_英文字體.Click += Button_第一台_標題_英文字體_Click;
+            this.button_第一台_叫號_備註字體.Click += Button_第一台_叫號_備註字體_Click;
 
-            this.rJ_TextBox_第二台_加一號.KeyPress += RJ_TextBox_第二台_加一號按鈕_KeyPress;
+            this.rJ_TextBox_第一台_加一號.KeyPress += RJ_TextBox_第一台_加一號_KeyPress;
+            this.rJ_TextBox_第一台_減一號.KeyPress += RJ_TextBox_第一台_減一號_KeyPress;
+            this.rJ_TextBox_第一台_加二號.KeyPress += RJ_TextBox_第一台_加二號_KeyPress;
+            this.rJ_TextBox_第一台_減二號.KeyPress += RJ_TextBox_第一台_減二號_KeyPress;
+            this.rJ_TextBox_第一台_加十號.KeyPress += RJ_TextBox_第一台_加十號_KeyPress;
+            this.rJ_TextBox_第一台_減十號.KeyPress += RJ_TextBox_第一台_減十號_KeyPress;
+
+            this.rJ_TextBox_第二台_加一號.KeyPress += RJ_TextBox_第二台_加一號_KeyPress;
             this.rJ_TextBox_第二台_減一號.KeyPress += RJ_TextBox_第二台_減一號_KeyPress;
-            this.rJ_TextBox_第二台_加二號.KeyPress += RJ_TextBox_第二台_加兩號_KeyPress;
-            this.rJ_TextBox_第二台_減二號.KeyPress += RJ_TextBox_第二台_減兩號_KeyPress;
+            this.rJ_TextBox_第二台_加二號.KeyPress += RJ_TextBox_第二台_加二號_KeyPress;
+            this.rJ_TextBox_第二台_減二號.KeyPress += RJ_TextBox_第二台_減二號_KeyPress;
+            this.rJ_TextBox_第二台_加十號.KeyPress += RJ_TextBox_第二台_加十號_KeyPress;
+            this.rJ_TextBox_第二台_減十號.KeyPress += RJ_TextBox_第二台_減十號_KeyPress;
 
             this.plC_RJ_Button_第一台_存檔.MouseDownEvent += PlC_RJ_Button_第一台_存檔_MouseDownEvent;
             this.plC_RJ_Button_設定_讀取.MouseDownEvent += PlC_RJ_Button_設定_讀取_MouseDownEvent;
@@ -121,16 +130,34 @@ namespace Hospital_Call_Light_System
                     value[(int)enum_樣式設定.叫號字體顏色] = Color.Red.ToColorString();
                     value[(int)enum_樣式設定.叫號背景顏色] = Color.White.ToColorString();
 
-                    value[(int)enum_樣式設定.加一號按鈕] = "";
+                    value[(int)enum_樣式設定.加一號] = "";
                     value[(int)enum_樣式設定.減一號按鈕] = "";
                     value[(int)enum_樣式設定.加二號按鈕] = "";
                     value[(int)enum_樣式設定.減二號按鈕] = "";
                     list_樣式設定_add.Add(value);
                 }
+                else
+                {
+                    object[] value = list_樣式設定_buf[0];
+                    if (value[(int)enum_樣式設定.英文標題字體].ObjectToString().StringIsEmpty()) value[(int)enum_樣式設定.英文標題字體] = new Font("標楷體", 80, FontStyle.Bold).ToFontString();
+                    if (value[(int)enum_樣式設定.叫號字體].ObjectToString().StringIsEmpty()) value[(int)enum_樣式設定.叫號字體] = new Font("標楷體", 200, FontStyle.Bold).ToFontString();
+                    if (value[(int)enum_樣式設定.叫號備註字體].ObjectToString().StringIsEmpty()) value[(int)enum_樣式設定.叫號備註字體] = new Font("標楷體", 30, FontStyle.Bold).ToFontString();
+                    if (value[(int)enum_樣式設定.標題字體].ObjectToString().StringIsEmpty()) value[(int)enum_樣式設定.標題字體] = new Font("標楷體", 150, FontStyle.Bold).ToFontString();
+                    if (value[(int)enum_樣式設定.標題高度].StringToInt32() <= 0) value[(int)enum_樣式設定.標題高度] = 300;
+                    if (value[(int)enum_樣式設定.標題文字寬度].StringToInt32() <= 0) value[(int)enum_樣式設定.標題文字寬度] = 800;
+                    if (value[(int)enum_樣式設定.叫號文字寬度].StringToInt32() <= 0) value[(int)enum_樣式設定.叫號文字寬度] = 800;
+                    if (value[(int)enum_樣式設定.叫號備註高度].StringToInt32() <= 0) value[(int)enum_樣式設定.叫號備註高度] = 100;
+                    if (value[(int)enum_樣式設定.英文標題高度].StringToInt32() <= 0) value[(int)enum_樣式設定.英文標題高度] = 200;
+                    list_樣式設定_replace.Add(value);
+
+
+
+                }
             }
 
             this.sqL_DataGridView_樣式設定.SQL_DeleteExtra(list_樣式設定_delete, false);
             this.sqL_DataGridView_樣式設定.SQL_AddRows(list_樣式設定_add, false);
+            this.sqL_DataGridView_樣式設定.SQL_ReplaceExtra(list_樣式設定_replace, false);
 
         }
         private void Function_第一台設定讀取(string 代碼)
@@ -157,6 +184,12 @@ namespace Hospital_Call_Light_System
                     rJ_TextBox_第一台_叫號_背景顏色.Text = list_value[0][(int)enum_樣式設定.叫號背景顏色].ObjectToString();
                     rJ_TextBox_第一台_叫號_背景顏色.BackColor = rJ_TextBox_第一台_叫號_背景顏色.Text.ToColor();
 
+                    rJ_TextBox_第一台_標題_英文字體.Text = list_value[0][(int)enum_樣式設定.英文標題字體].ObjectToString();
+                    rJ_TextBox_第一台_標題_英文高度.Text = list_value[0][(int)enum_樣式設定.英文標題高度].ObjectToString();
+
+                    rJ_TextBox_第一台_叫號_備註字體.Text = list_value[0][(int)enum_樣式設定.叫號備註字體].ObjectToString();
+                    rJ_TextBox_第一台_叫號_備註高度.Text = list_value[0][(int)enum_樣式設定.叫號備註高度].ObjectToString();
+
                 }));
             }
         }
@@ -175,7 +208,9 @@ namespace Hospital_Call_Light_System
         private void SqL_DataGridView_叫號台設定_RowDoubleClickEvent(object[] RowValue)
         {
             rJ_TextBox_叫號台設定_名稱.Text = RowValue[(int)enum_叫號台設定.名稱].ObjectToString();
-            comboBox_代碼.Text = RowValue[(int)enum_叫號台設定.樣式代碼].ObjectToString();
+            rJ_TextBox_叫號台設定_英文名.Text = RowValue[(int)enum_叫號台設定.英文名].ObjectToString();
+            rJ_TextBox_叫號台設定_叫號備註.Text = RowValue[(int)enum_叫號台設定.叫號備註].ObjectToString();
+            comboBox_叫號台設定_代碼.Text = RowValue[(int)enum_叫號台設定.樣式代碼].ObjectToString();
         }
 
         private void ComboBox_代碼_SelectedIndexChanged(object sender, EventArgs e)
@@ -211,8 +246,10 @@ namespace Hospital_Call_Light_System
         }
         private void Button_第一台_標題_字體_Click(object sender, EventArgs e)
         {
+            if (rJ_TextBox_第一台_標題_字體.Text.StringIsEmpty() == false) this.fontDialog.Font = rJ_TextBox_第一台_標題_字體.Text.ToFont();
             if (this.fontDialog.ShowDialog() == DialogResult.OK)
             {
+         
                 rJ_TextBox_第一台_標題_字體.Text = this.fontDialog.Font.ToFontString();
             }
         }
@@ -234,20 +271,34 @@ namespace Hospital_Call_Light_System
         }
         private void Button_第一台_叫號_字體_Click(object sender, EventArgs e)
         {
+            if (rJ_TextBox_第一台_叫號_字體.Text.StringIsEmpty() == false) this.fontDialog.Font = rJ_TextBox_第一台_叫號_字體.Text.ToFont();
             if (this.fontDialog.ShowDialog() == DialogResult.OK)
             {
+     
                 rJ_TextBox_第一台_叫號_字體.Text = this.fontDialog.Font.ToFontString();
             }
         }
-        private void RJ_TextBox_第一台_加一號按鈕_KeyPress(object sender, KeyPressEventArgs e)
+        private void Button_第一台_標題_英文字體_Click(object sender, EventArgs e)
         {
-            e.Handled = true;
+            if (rJ_TextBox_第一台_標題_英文字體.Text.StringIsEmpty() == false) this.fontDialog.Font = rJ_TextBox_第一台_標題_英文字體.Text.ToFont();
+            if (this.fontDialog.ShowDialog() == DialogResult.OK)
+            {
+              
+                rJ_TextBox_第一台_標題_英文字體.Text = this.fontDialog.Font.ToFontString();
+            }
         }
-        private void RJ_TextBox_第一台_減兩號_KeyPress(object sender, KeyPressEventArgs e)
+
+        private void Button_第一台_叫號_備註字體_Click(object sender, EventArgs e)
         {
-            e.Handled = true;
+            if (rJ_TextBox_第一台_叫號_備註字體.Text.StringIsEmpty() == false) this.fontDialog.Font = rJ_TextBox_第一台_叫號_備註字體.Text.ToFont();
+            if (this.fontDialog.ShowDialog() == DialogResult.OK)
+            {
+
+                rJ_TextBox_第一台_叫號_備註字體.Text = this.fontDialog.Font.ToFontString();
+            }
         }
-        private void RJ_TextBox_第一台_加兩號_KeyPress(object sender, KeyPressEventArgs e)
+    
+        private void RJ_TextBox_第一台_加一號_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = true;
         }
@@ -255,20 +306,45 @@ namespace Hospital_Call_Light_System
         {
             e.Handled = true;
         }
+        private void RJ_TextBox_第一台_減二號_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void RJ_TextBox_第一台_加二號_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
 
-        private void RJ_TextBox_第二台_加一號按鈕_KeyPress(object sender, KeyPressEventArgs e)
+        private void RJ_TextBox_第一台_減十號_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = true;
         }
-        private void RJ_TextBox_第二台_減兩號_KeyPress(object sender, KeyPressEventArgs e)
+        private void RJ_TextBox_第一台_加十號_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = true;
         }
-        private void RJ_TextBox_第二台_加兩號_KeyPress(object sender, KeyPressEventArgs e)
+        private void RJ_TextBox_第二台_加一號_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = true;
         }
         private void RJ_TextBox_第二台_減一號_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void RJ_TextBox_第二台_減二號_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void RJ_TextBox_第二台_加二號_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+
+        private void RJ_TextBox_第二台_減十號_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            e.Handled = true;
+        }
+        private void RJ_TextBox_第二台_加十號_KeyPress(object sender, KeyPressEventArgs e)
         {
             e.Handled = true;
         }
@@ -325,6 +401,24 @@ namespace Hospital_Call_Light_System
             {
                 str_error += $"'叫號背景顏色'空白!\n";
             }
+
+            if (rJ_TextBox_第一台_標題_英文高度.Text.StringToInt32() <= 0)
+            {
+                str_error += $"'英文標題高度'不得小於0!\n";
+            }
+            if (rJ_TextBox_第一台_標題_英文字體.Text.StringIsEmpty())
+            {
+                str_error += $"'英文字體'空白!\n";
+            }
+
+            if (rJ_TextBox_第一台_叫號_備註高度.Text.StringToInt32() <= 0)
+            {
+                str_error += $"'備註高度'不得小於0!\n";
+            }
+            if (rJ_TextBox_第一台_叫號_備註字體.Text.StringIsEmpty())
+            {
+                str_error += $"'備註字體'空白!\n";
+            }
             if (str_error.StringIsEmpty() == false)
             {
                 MyMessageBox.ShowDialog(str_error);
@@ -343,6 +437,10 @@ namespace Hospital_Call_Light_System
             string 叫號文字寬度 = rJ_TextBox_第一台_叫號_寬度.Text;
             string 叫號字體顏色 = rJ_TextBox_第一台_叫號_字體顏色.Text;
             string 叫號背景顏色 = rJ_TextBox_第一台_叫號_背景顏色.Text;
+            string 英文標題高度 = rJ_TextBox_第一台_標題_英文高度.Text;
+            string 英文標題字體 = rJ_TextBox_第一台_標題_英文字體.Text;
+            string 備註高度 = rJ_TextBox_第一台_叫號_備註高度.Text;
+            string 備註字體 = rJ_TextBox_第一台_叫號_備註字體.Text;
 
 
 
@@ -364,8 +462,12 @@ namespace Hospital_Call_Light_System
                 value[(int)enum_樣式設定.叫號文字寬度] = 叫號文字寬度;
                 value[(int)enum_樣式設定.叫號字體顏色] = 叫號字體顏色;
                 value[(int)enum_樣式設定.叫號背景顏色] = 叫號背景顏色;
+                value[(int)enum_樣式設定.英文標題高度] = 英文標題高度;
+                value[(int)enum_樣式設定.英文標題字體] = 英文標題字體;
+                value[(int)enum_樣式設定.叫號備註高度] = 備註高度;
+                value[(int)enum_樣式設定.叫號備註字體] = 備註字體;
 
- 
+
                 sqL_DataGridView_樣式設定.SQL_AddRow(value, false);
             }
             else
@@ -384,7 +486,10 @@ namespace Hospital_Call_Light_System
                 value[(int)enum_樣式設定.叫號字體顏色] = 叫號字體顏色;
                 value[(int)enum_樣式設定.叫號背景顏色] = 叫號背景顏色;
 
-
+                value[(int)enum_樣式設定.英文標題高度] = 英文標題高度;
+                value[(int)enum_樣式設定.英文標題字體] = 英文標題字體;
+                value[(int)enum_樣式設定.叫號備註高度] = 備註高度;
+                value[(int)enum_樣式設定.叫號備註字體] = 備註字體;
                 sqL_DataGridView_樣式設定.SQL_ReplaceExtra(value, false);
 
             }
@@ -415,6 +520,8 @@ namespace Hospital_Call_Light_System
                 object[] value = new object[new enum_叫號台設定().GetLength()];
                 value[(int)enum_叫號台設定.GUID] = Guid.NewGuid().ToString();
                 value[(int)enum_叫號台設定.名稱] = rJ_TextBox_叫號台設定_名稱.Text;
+                value[(int)enum_叫號台設定.英文名] = rJ_TextBox_叫號台設定_英文名.Text;
+                value[(int)enum_叫號台設定.叫號備註] = rJ_TextBox_叫號台設定_叫號備註.Text;
                 value[(int)enum_叫號台設定.樣式代碼] = text;
                 value[(int)enum_叫號台設定.號碼] = "0000";
                 this.sqL_DataGridView_叫號台設定.SQL_AddRow(value, true);
@@ -423,6 +530,8 @@ namespace Hospital_Call_Light_System
             {
                 object[] value = list_value[0];
                 value[(int)enum_叫號台設定.名稱] = rJ_TextBox_叫號台設定_名稱.Text;
+                value[(int)enum_叫號台設定.英文名] = rJ_TextBox_叫號台設定_英文名.Text;
+                value[(int)enum_叫號台設定.叫號備註] = rJ_TextBox_叫號台設定_叫號備註.Text;
                 value[(int)enum_叫號台設定.樣式代碼] = text;
                 this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(value, true);
             }
@@ -445,11 +554,16 @@ namespace Hospital_Call_Light_System
             myConfigClass.第一台減一號 = this.rJ_TextBox_第一台_減一號.Text;
             myConfigClass.第一台加二號 = this.rJ_TextBox_第一台_加二號.Text;
             myConfigClass.第一台減二號 = this.rJ_TextBox_第一台_減二號.Text;
+            myConfigClass.第一台加十號 = this.rJ_TextBox_第一台_加十號.Text;
+            myConfigClass.第一台減十號 = this.rJ_TextBox_第一台_減十號.Text;
+
+
             myConfigClass.第二台加一號 = this.rJ_TextBox_第二台_加一號.Text;
             myConfigClass.第二台減一號 = this.rJ_TextBox_第二台_減一號.Text;
             myConfigClass.第二台加二號 = this.rJ_TextBox_第二台_加二號.Text;
             myConfigClass.第二台減二號 = this.rJ_TextBox_第二台_減二號.Text;
-
+            myConfigClass.第二台加十號 = this.rJ_TextBox_第二台_加十號.Text;
+            myConfigClass.第二台減十號 = this.rJ_TextBox_第二台_減十號.Text;
             string jsonstr = Basic.Net.JsonSerializationt<MyConfigClass>(myConfigClass, true);
             List<string> list_jsonstring = new List<string>();
             list_jsonstring.Add(jsonstr);

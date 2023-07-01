@@ -31,6 +31,8 @@ namespace Hospital_Call_Light_System
             this.button_第二台號碼輸入.Click += Button_第二台號碼輸入_Click;
             this.plC_RJ_Button_刷新螢幕.MouseDownEvent += PlC_RJ_Button_刷新螢幕_MouseDownEvent;
             this.plC_RJ_Button_檢查按鈕.MouseDownEvent += PlC_RJ_Button_檢查按鈕_MouseDownEvent;
+            this.plC_RJ_Button_刷新音效.MouseDownEvent += PlC_RJ_Button_刷新音效_MouseDownEvent;
+
 
             this.button_主畫面_存檔.Click += Button_主畫面_存檔_Click;
             comboBox_一號台名稱.Click += ComboBox_一號台名稱_Click; ;
@@ -50,11 +52,12 @@ namespace Hospital_Call_Light_System
             this.plC_UI_Init.Add_Method(sub_Program_主畫面);
         }
 
-
+   
 
         private void sub_Program_主畫面()
         {
             sub_Program_刷新螢幕();
+            sub_Program_刷新音效();
         }
 
         private Bitmap Function_主畫面_取得文字Bitmap(string 標題名稱, Font 標題字體, Size 標題大小, int 標題文字寬度, Color 標題字體顏色, Color 標題背景顏色)
@@ -64,11 +67,13 @@ namespace Hospital_Call_Light_System
                 Bitmap bitmap = new Bitmap(標題大小.Width, 標題大小.Height);
                 using (Graphics g_bmp = Graphics.FromImage(bitmap))
                 {
+
                     DrawingClass.Draw.方框繪製(new PointF(0, 0), bitmap.Size, Color.Transparent, 2, true, g_bmp, 1, 1);
                     DrawingClass.Draw.方框繪製(new PointF(0, 0), new Size(bitmap.Width - 2, bitmap.Height), 標題背景顏色, 1, true, g_bmp, 1, 1);
                     Size size_font = TextRenderer.MeasureText(標題名稱, 標題字體);
                     int x = (標題大小.Width - 標題文字寬度) / 2;
                     int y = (bitmap.Height - size_font.Height) / 2;
+
 
                     DrawingClass.Draw.文字左上繪製(標題名稱, 標題文字寬度, new PointF(x, y), 標題字體, 標題字體顏色, 標題背景顏色, g_bmp);
                 }
@@ -80,7 +85,31 @@ namespace Hospital_Call_Light_System
             }
        
         }
+        private Bitmap Function_主畫面_取得英文文字Bitmap(string 標題名稱, Font 標題字體, Size 標題大小, int 標題文字寬度, Color 標題字體顏色, Color 標題背景顏色)
+        {
+            try
+            {
+                Bitmap bitmap = new Bitmap(標題大小.Width, 標題大小.Height);
+                using (Graphics g_bmp = Graphics.FromImage(bitmap))
+                {
 
+                    DrawingClass.Draw.方框繪製(new PointF(0, 0), bitmap.Size, Color.Transparent, 2, true, g_bmp, 1, 1);
+                    DrawingClass.Draw.方框繪製(new PointF(0, 0), new Size(bitmap.Width - 2, bitmap.Height), 標題背景顏色, 1, true, g_bmp, 1, 1);
+                    Size size_font = TextRenderer.MeasureText(標題名稱, 標題字體);
+                    int x = (標題大小.Width - 標題文字寬度) / 2;
+                    int y = (bitmap.Height - size_font.Height) / 2;
+
+
+                    DrawingClass.Draw.文字左上繪製(標題名稱, 標題文字寬度, new PointF(x, y), 標題字體, 標題字體顏色, 標題背景顏色, g_bmp);
+                }
+                return bitmap;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
         #region Event
         private void ComboBox_二號台名稱_Click(object sender, EventArgs e)
         {
@@ -108,6 +137,9 @@ namespace Hospital_Call_Light_System
             myConfigClass.二號台名稱 = this.comboBox_二號台名稱.Text;
             myConfigClass.第一台顯示 = checkBox_1號台顯示.Checked;
             myConfigClass.第二台顯示 = checkBox_2號台顯示.Checked;
+            myConfigClass.全局音效 = checkBox_全局音效.Checked;
+            myConfigClass.本地音效 = checkBox_本地音效.Checked;
+
             string jsonstr = Basic.Net.JsonSerializationt<MyConfigClass>(myConfigClass, true);
             List<string> list_jsonstring = new List<string>();
             list_jsonstring.Add(jsonstr);
@@ -119,15 +151,53 @@ namespace Hospital_Call_Light_System
             MyMessageBox.ShowDialog("完成!");
 
         }
+        private void PlC_RJ_Button_刷新音效_MouseDownEvent(MouseEventArgs mevent)
+        {
+            if (this.myConfigClass.全局音效)
+            {
+                System.Media.SoundPlayer sp = null;
+                List<object[]> list_value = this.sqL_DataGridView_參數.SQL_GetAllRows(false);
+                list_value = list_value.GetRows((int)enum_參數.Name, "音效");
+                if (list_value.Count > 0)
+                {
+                    object[] value = list_value[0];
+                  
+
+                    if (value[(int)enum_參數.Value].ObjectToString().ToUpper() == true.ToString().ToUpper())
+                    {
+                        try
+                        {
+
+                            sp = new System.Media.SoundPlayer(".//RING.wav");
+                            sp.Stop();
+
+                            sp.Play();
+
+                        }
+                        finally
+                        {
+                            if (sp != null) sp.Dispose();
+                        }
+                    }
+
+                    value[(int)enum_參數.Name] = "音效";
+                    value[(int)enum_參數.Value] = "false";
+                    this.sqL_DataGridView_參數.SQL_ReplaceExtra(value, false);
+                }
+            }
+        }
         private void PlC_RJ_Button_刷新螢幕_MouseDownEvent(MouseEventArgs mevent)
         {
             try
             {
                 using (Graphics g = this.panel_叫號.CreateGraphics())
                 {
-                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+
+                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality; //使繪圖質量最高，即消除鋸齒
                     g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                    g.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
+
                     string 一號台名稱 = "";
                     string 二號台名稱 = "";
 
@@ -139,9 +209,13 @@ namespace Hospital_Call_Light_System
                     int width = this.panel_叫號.Width;
                     int height = this.panel_叫號.Height;
                     Bitmap bitmap_標題_0 = null;
+                    Bitmap bitmap_英文標題_0 = null;
                     Bitmap bitmap_叫號_0 = null;
+                    Bitmap bitmap_叫號備註_0 = null;
                     Bitmap bitmap_標題_1 = null;
+                    Bitmap bitmap_英文標題_1 = null;
                     Bitmap bitmap_叫號_1 = null;
+                    Bitmap bitmap_叫號備註_1 = null;
                     List<object[]> list_叫號台設定 = this.sqL_DataGridView_叫號台設定.SQL_GetAllRows(false);
                     List<object[]> list_叫號台設定_buf = new List<object[]>();
                     List<object[]> list_樣式設定 = this.sqL_DataGridView_樣式設定.SQL_GetAllRows(false);
@@ -178,12 +252,23 @@ namespace Hospital_Call_Light_System
                         Color 標題背景顏色 = list_樣式設定_buf[0][(int)enum_樣式設定.標題背景顏色].ObjectToString().ToColor();
                         int 標題高度 = list_樣式設定_buf[0][(int)enum_樣式設定.標題高度].StringToInt32();
 
+                        string 英文標題名稱 = list_叫號台設定_buf[0][(int)enum_叫號台設定.英文名].ObjectToString();
+                        Font 英文標題字體 = list_樣式設定_buf[0][(int)enum_樣式設定.英文標題字體].ObjectToString().ToFont();
+                        int 英文標題高度 = list_樣式設定_buf[0][(int)enum_樣式設定.英文標題高度].StringToInt32();
+
                         string 叫號名稱 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號號碼].ObjectToString();
                         Font 叫號字體 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號字體].ObjectToString().ToFont();
                         int 叫號文字寬度 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號文字寬度].StringToInt32();
                         Color 叫號字體顏色 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號字體顏色].ObjectToString().ToColor();
                         Color 叫號背景顏色 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號背景顏色].ObjectToString().ToColor();
-                        int 叫號高度 = height - 標題高度;
+                   
+
+                        string 叫號備註 = list_叫號台設定_buf[0][(int)enum_叫號台設定.叫號備註].ObjectToString();
+
+                        Font 叫號備註字體 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號備註字體].ObjectToString().ToFont();
+                        int 叫號備註高度 = list_樣式設定_buf[0][(int)enum_樣式設定.叫號備註高度].StringToInt32();
+
+                        int 叫號高度 = height - (標題高度 + 英文標題高度 + 叫號備註高度);
                         if (i == 0 && checkBox_1號台顯示.Checked)
                         {
                             if (叫號台01_號碼 != list_叫號台設定_buf[0][(int)enum_叫號台設定.號碼].StringToInt32())
@@ -192,7 +277,9 @@ namespace Hospital_Call_Light_System
                             }
                             叫號台01_號碼 = list_叫號台設定_buf[0][(int)enum_叫號台設定.號碼].StringToInt32();
                             bitmap_標題_0 = Function_主畫面_取得文字Bitmap(標題名稱, 標題字體, new Size(寬度, 標題高度), 標題文字寬度, 標題字體顏色, 標題背景顏色);
+                            bitmap_英文標題_0 = Function_主畫面_取得英文文字Bitmap(英文標題名稱, 英文標題字體, new Size(寬度, 英文標題高度), 標題文字寬度, 標題字體顏色, 標題背景顏色);
                             bitmap_叫號_0 = Function_主畫面_取得文字Bitmap(叫號台01_號碼.ToString("0000"), 叫號字體, new Size(寬度, 叫號高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
+                            bitmap_叫號備註_0 = Function_主畫面_取得文字Bitmap(叫號備註, 叫號備註字體, new Size(寬度, 叫號備註高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
                         }
                         if (i == 1 && checkBox_2號台顯示.Checked)
                         {
@@ -203,7 +290,9 @@ namespace Hospital_Call_Light_System
 
                             叫號台02_號碼 = list_叫號台設定_buf[0][(int)enum_叫號台設定.號碼].StringToInt32();
                             bitmap_標題_1 = Function_主畫面_取得文字Bitmap(標題名稱, 標題字體, new Size(寬度, 標題高度), 標題文字寬度, 標題字體顏色, 標題背景顏色);
+                            bitmap_英文標題_1 = Function_主畫面_取得英文文字Bitmap(英文標題名稱, 英文標題字體, new Size(寬度, 英文標題高度), 標題文字寬度, 標題字體顏色, 標題背景顏色);
                             bitmap_叫號_1 = Function_主畫面_取得文字Bitmap(叫號台02_號碼.ToString("0000"), 叫號字體, new Size(寬度, 叫號高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
+                            bitmap_叫號備註_1 = Function_主畫面_取得文字Bitmap(叫號備註, 叫號備註字體, new Size(寬度, 叫號備註高度), 叫號文字寬度, 叫號字體顏色, 叫號背景顏色);
                         }
 
 
@@ -216,31 +305,56 @@ namespace Hospital_Call_Light_System
                     if (bitmap_標題_0 != null)
                     {
                         g.DrawImage(bitmap_標題_0, new PointF(posx, 0));
-                        g.DrawImage(bitmap_叫號_0, new PointF(posx, bitmap_標題_0.Height));
+                        g.DrawImage(bitmap_英文標題_0, new PointF(posx, bitmap_標題_0.Height));
+                        g.DrawImage(bitmap_叫號_0, new PointF(posx, bitmap_標題_0.Height + bitmap_英文標題_0.Height));
+                        g.DrawImage(bitmap_叫號備註_0, new PointF(posx, bitmap_標題_0.Height + bitmap_英文標題_0.Height + bitmap_叫號_0.Height));
                     }
                     if (bitmap_標題_1 != null)
                     {
-                        g.DrawImage(bitmap_標題_1, new PointF(posx + bitmap_標題_0.Width, 0));
-                        g.DrawImage(bitmap_叫號_1, new PointF(posx + bitmap_標題_0.Width, bitmap_標題_1.Height));
+                        g.DrawImage(bitmap_標題_1, new PointF(posx + bitmap_標題_1.Width, 0));
+                        g.DrawImage(bitmap_英文標題_1, new PointF(posx + bitmap_標題_1.Width, bitmap_標題_1.Height));
+                        g.DrawImage(bitmap_叫號_1, new PointF(posx + bitmap_標題_1.Width, bitmap_標題_1.Height + bitmap_英文標題_1.Height));
+                        g.DrawImage(bitmap_叫號備註_1, new PointF(posx + bitmap_標題_1.Width, bitmap_標題_1.Height + bitmap_英文標題_1.Height + bitmap_叫號_1.Height));
                     }
-                    if(flag_RING)
+                    if (flag_RING)
                     {
+                        List<object[]> list_value = this.sqL_DataGridView_參數.SQL_GetAllRows(false);
+                        list_value = list_value.GetRows((int)enum_參數.Name, "音效");
+                        if (list_value.Count == 0)
+                        {
+                            object[] value = new object[new enum_參數().GetLength()];
+                            value[(int)enum_參數.GUID] = Guid.NewGuid().ToString();
+                            value[(int)enum_參數.Name] = "音效";
+                            value[(int)enum_參數.Value] = "true";
+                            this.sqL_DataGridView_參數.SQL_AddRow(value, false);
+                        }
+                        else
+                        {
+                            object[] value = list_value[0];
+                            value[(int)enum_參數.Name] = "音效";
+                            value[(int)enum_參數.Value] = "true";
+                            this.sqL_DataGridView_參數.SQL_ReplaceExtra(value, false);
+                        }
                        
                         System.Media.SoundPlayer sp = null;
                         Dialog_小叫號台.Refresh(叫號台01_號碼, 叫號台02_號碼);
-                        try
+                        if(this.myConfigClass.本地音效)
                         {
-                     
-                            sp = new System.Media.SoundPlayer(".//RING.wav");
-                            sp.Stop();
+                            try
+                            {
 
-                            sp.Play();
-          
+                                sp = new System.Media.SoundPlayer(".//RING.wav");
+                                sp.Stop();
+
+                                sp.Play();
+
+                            }
+                            finally
+                            {
+                                if (sp != null) sp.Dispose();
+                            }
                         }
-                        finally
-                        {
-                            if (sp != null) sp.Dispose();
-                        }
+                 
                     }
           
 
@@ -345,7 +459,6 @@ namespace Hospital_Call_Light_System
             list_value[0][(int)enum_叫號台設定.號碼] = dialog_NumPannel.Value.ToString("0000");
             this.sqL_DataGridView_叫號台設定.SQL_ReplaceExtra(list_value, false);
         }
-
         private void Dialog_小叫號台_EnrterNum01Event()
         {
             string 機台名稱 = this.comboBox_一號台名稱.Text;
@@ -418,6 +531,73 @@ namespace Hospital_Call_Light_System
                 if (Task_刷新螢幕.Status == TaskStatus.Created)
                 {
                     Task_刷新螢幕.Start();
+                }
+                cnt++;
+            }
+        }
+
+
+
+
+
+
+
+        #endregion
+        #region PLC_刷新音效
+        PLC_Device PLC_Device_刷新音效 = new PLC_Device("");
+        PLC_Device PLC_Device_刷新音效_OK = new PLC_Device("");
+        Task Task_刷新音效;
+        MyTimer MyTimer_刷新音效_結束延遲 = new MyTimer();
+        int cnt_Program_刷新音效 = 65534;
+        void sub_Program_刷新音效()
+        {
+            if (plC_ScreenPage_Main.PageText == "主畫面") PLC_Device_刷新音效.Bool = true;
+            if (cnt_Program_刷新音效 == 65534)
+            {
+                this.MyTimer_刷新音效_結束延遲.StartTickTime(500);
+                PLC_Device_刷新音效.SetComment("PLC_刷新音效");
+                PLC_Device_刷新音效_OK.SetComment("PLC_刷新音效_OK");
+                PLC_Device_刷新音效.Bool = false;
+                cnt_Program_刷新音效 = 65535;
+            }
+            if (cnt_Program_刷新音效 == 65535) cnt_Program_刷新音效 = 1;
+            if (cnt_Program_刷新音效 == 1) cnt_Program_刷新音效_檢查按下(ref cnt_Program_刷新音效);
+            if (cnt_Program_刷新音效 == 2) cnt_Program_刷新音效_初始化(ref cnt_Program_刷新音效);
+            if (cnt_Program_刷新音效 == 3) cnt_Program_刷新音效 = 65500;
+            if (cnt_Program_刷新音效 > 1) cnt_Program_刷新音效_檢查放開(ref cnt_Program_刷新音效);
+
+            if (cnt_Program_刷新音效 == 65500)
+            {
+                this.MyTimer_刷新音效_結束延遲.TickStop();
+                this.MyTimer_刷新音效_結束延遲.StartTickTime(500);
+                PLC_Device_刷新音效.Bool = false;
+                PLC_Device_刷新音效_OK.Bool = false;
+                cnt_Program_刷新音效 = 65535;
+            }
+        }
+        void cnt_Program_刷新音效_檢查按下(ref int cnt)
+        {
+            if (PLC_Device_刷新音效.Bool) cnt++;
+        }
+        void cnt_Program_刷新音效_檢查放開(ref int cnt)
+        {
+            if (!PLC_Device_刷新音效.Bool) cnt = 65500;
+        }
+        void cnt_Program_刷新音效_初始化(ref int cnt)
+        {
+            if (this.MyTimer_刷新音效_結束延遲.IsTimeOut())
+            {
+                if (Task_刷新音效 == null)
+                {
+                    Task_刷新音效 = new Task(new Action(delegate { PlC_RJ_Button_刷新音效_MouseDownEvent(null); }));
+                }
+                if (Task_刷新音效.Status == TaskStatus.RanToCompletion)
+                {
+                    Task_刷新音效 = new Task(new Action(delegate { PlC_RJ_Button_刷新音效_MouseDownEvent(null); }));
+                }
+                if (Task_刷新音效.Status == TaskStatus.Created)
+                {
+                    Task_刷新音效.Start();
                 }
                 cnt++;
             }
